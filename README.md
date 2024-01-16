@@ -34,7 +34,7 @@ API системы онлайн-опросов
 }
 ```
 
-### POST /GetQuestion?surveyId=\{id\} либо /GetQuestion?pageIndex=\{pageId\}&surveyId=\{id\}
+### POST /PostAnswers
 
 Сохранение результатов ответа на вопрос по кнопке “Далее”. Принимает выбранные радиобаттоны.
 
