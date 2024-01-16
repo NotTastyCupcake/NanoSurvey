@@ -49,7 +49,7 @@ namespace NotTastyCupcake.NanoSurvey.Web.Controllers
 
             await repositoryRes.SaveChangesAsync();
 
-            return await OnGet(request.PageIndex, request.SurveyId);
+            return RedirectToAction("OnGet", "Question", new { pageIndex = request.PageIndex, surveyId = request.SurveyId });
         }
     }
 }
