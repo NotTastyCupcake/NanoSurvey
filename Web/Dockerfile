@@ -1,24 +1,24 @@
 #See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+# Используем образ для сборки приложения
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS build-env
 WORKDIR /app
+
+# Копируем файлы проекта и восстанавливаем зависимости
+COPY *.csproj ./
+RUN dotnet restore
+
+# Копируем остальные файлы исходного кода и публикуем приложение
+COPY . ./
+RUN dotnet publish -c Release -o out
+
+# Используем образ dotnet/aspnet для запуска приложения
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
+WORKDIR /app
+RUN --from=build-env /app/out .
+
+# Открываем порт 80 для веб-сервера
 EXPOSE 80
-EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY ["Web/Web.csproj", "Web/"]
-RUN dotnet restore "./Web/./Web.csproj"
-COPY . .
-WORKDIR "/src/Web"
-RUN dotnet build "./Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
-
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
+# Запускаем приложение
 ENTRYPOINT ["dotnet", "Web.dll"]
